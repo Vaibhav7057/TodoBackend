@@ -10,7 +10,7 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: "https://todos-gedamecosystem.vercel.app",
     credentials: true,
   })
 );
