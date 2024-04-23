@@ -13,7 +13,7 @@ const todoSchema = new Schema({
     default: Date.now,
   },
   deadline: {
-    type: Date,
+    type: String,
   },
   completed: {
     type: Boolean,
