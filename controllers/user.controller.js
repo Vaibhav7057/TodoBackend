@@ -324,6 +324,7 @@ const updatephoto = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
   const { public_id } = req.body;
   const avatarLocalPath = req.file?.path;
+  console.log(avatarLocalPath);
   if (!avatarLocalPath) throw new ApiError(404, "file not found");
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);

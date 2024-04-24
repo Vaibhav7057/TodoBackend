@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const addtodo = asyncHandler(async (req, res) => {
   const { title, description, deadline } = req.body;
-  console.log(deadline);
+
   if (!title) throw new ApiError(401, "title field is requied");
   const existedTodo = await Todo.findOne({ title });
 
@@ -20,8 +20,6 @@ const addtodo = asyncHandler(async (req, res) => {
     owner: req.user._id,
   });
   if (!todo) throw new ApiError(501, "internal server error");
-
-  console.log(todo.deadline);
 
   return res
     .status(201)
