@@ -6,7 +6,6 @@ import { ApiResponse } from "./utils/ApiResponse.js";
 import { ApiError } from "./utils/ApiError.js";
 
 const app = express();
-
 app.set("view engine", "ejs");
 
 app.use(
