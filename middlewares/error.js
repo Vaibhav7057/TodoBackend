@@ -19,13 +19,13 @@ const handleError = (err, req, res, next) => {
   // Wrong JWT error
   if (err.name === "JsonWebTokenError") {
     const message = `Json Web Token is invalid, Try again `;
-    err = new ApiError(400, message);
+    err = new ApiError(403, message);
   }
 
   // JWT EXPIRE error
   if (err.name === "TokenExpiredError") {
     const message = `Json Web Token is Expired, Try again `;
-    err = new ApiError(400, message);
+    err = new ApiError(403, message);
   }
 
   res.status(err.statusCode).json({

@@ -108,6 +108,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
+    sameSite: "None",
   };
 
   return res
@@ -128,10 +129,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       process.env.REFRESH_TOKEN_SECRET
     );
     if (decodedToken.exp < Date.now() / 1000) {
-      throw new ApiError(401, "refresh token has expired");
+      throw new ApiError(403, "refresh token has expired");
     }
     if (!decodedToken?._id) {
-      throw new ApiError(401, "Invalid refresh token");
+      throw new ApiError(403, "Invalid refresh token");
     }
 
     const user = await User.findById(decodedToken?._id).select("+refreshToken");

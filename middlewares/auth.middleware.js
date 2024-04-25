@@ -17,10 +17,8 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
   }
 
   const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  if (!decodedToken) throw new ApiError(401, "access token expired");
-  if (decodedToken.exp < Date.now() / 1000) {
-    throw new ApiError(401, "access token has expired");
-  }
+  if (!decodedToken) throw new ApiError(403, "access token expired");
+
   const user = await User.findById(decodedToken?._id);
 
   if (!user) {
