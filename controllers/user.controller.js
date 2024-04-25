@@ -1,13 +1,9 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { v2 as cloudinary } from "cloudinary";
-import mongoose from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { Todo } from "../models/todo.model.js";
-import {
-  uploadOnCloudinary,
-  deleteFromCloudinary,
-} from "../utils/cloudinary.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { sendEmail } from "../utils/sendmail.js";
 import jwt from "jsonwebtoken";
@@ -194,7 +190,7 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    return next(new ApiError(500, error.message));
+    throw new ApiError(500, error.message);
   }
 });
 
@@ -229,36 +225,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 });
 
 const getUserDetails = asyncHandler(async (req, res, next) => {
-  const user = await User.aggregate([
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(req.user._id),
-      },
-    },
-    {
-      $lookup: {
-        from: "todos",
-        localField: "_id",
-        foreignField: "owner",
-        as: "todos",
-      },
-    },
-    {
-      $addFields: {
-        alltodos: "$todos",
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        email: 1,
-        fullName: 1,
-        monumber: 1,
-        profilephoto: 1,
-        alltodos: 1,
-      },
-    },
-  ]);
+  const user = await User.findById(req.user._id);
 
   if (!user) {
     throw new ApiError(404, "user does not exists");
@@ -266,7 +233,7 @@ const getUserDetails = asyncHandler(async (req, res, next) => {
 
   res
     .status(200)
-    .json(new ApiResponse(200, "here is your detail", "user", user[0]));
+    .json(new ApiResponse(200, "here is your detail", "user", user));
 });
 
 const updatePassword = asyncHandler(async (req, res, next) => {
@@ -328,12 +295,13 @@ const updatephoto = asyncHandler(async (req, res, next) => {
 
   if (!avatarLocalPath) throw new ApiError(404, "file not found");
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  const avatar = await uploadOnCloudinary(avatarLocalPath, "todolist");
   if (!avatar) throw new ApiError(404, "file not found on server");
 
   if (public_id) {
     await cloudinary.uploader.destroy(public_id);
   }
+
   let profilephoto = {
     public_id: avatar?.public_id || "",
     url: avatar?.secure_url || "",
@@ -356,15 +324,20 @@ const updatephoto = asyncHandler(async (req, res, next) => {
         200,
         "your profile photo has been updated successfully",
         "imgUrl",
-        req.file
+        profilephoto
       )
     );
 });
 
 const deletephoto = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
-  const { public_id } = req.params;
-  const response = await deleteFromCloudinary(public_id);
+  const { public_id } = req.body;
+
+  if (!public_id) {
+    throw new ApiError(401, "Please provide image public id");
+  }
+  const response = await cloudinary.uploader.destroy(public_id);
+
   if (response.result != "ok") throw new ApiError(404, "file deletion failed");
 
   const updatedUser = await User.findByIdAndUpdate(

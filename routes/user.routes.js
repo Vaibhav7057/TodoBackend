@@ -36,7 +36,7 @@ router.route("/me/update").patch(verifyJWT, updateAccountDetails);
 router
   .route("/updateprofilephoto")
   .post(verifyJWT, upload.single("profilephoto"), updatephoto);
-router.route("/deleteprofilephoto/:public_id").post(verifyJWT, deletephoto);
+router.route("/deleteprofilephoto").post(verifyJWT, deletephoto);
 
 router.route("/me").get(verifyJWT, getUserDetails);
 

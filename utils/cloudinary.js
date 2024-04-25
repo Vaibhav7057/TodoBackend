@@ -8,12 +8,13 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath, folder_name) => {
   try {
     if (!localFilePath) return null;
 
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
+      folder: folder_name,
     });
 
     fs.unlinkSync(localFilePath);
@@ -24,16 +25,4 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-const deleteFromCloudinary = async (image_public_id) => {
-  try {
-    if (!image_public_id)
-      throw new ApiError(401, "Please provide image public id");
-
-    const response = await cloudinary.uploader.destroy(image_public_id);
-    return response;
-  } catch (error) {
-    console.log(error.message);
-  }
-};
-
-export { uploadOnCloudinary, deleteFromCloudinary };
+export { uploadOnCloudinary };
