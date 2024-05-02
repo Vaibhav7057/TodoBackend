@@ -7,7 +7,9 @@ const addtodo = asyncHandler(async (req, res) => {
   const { title, description, deadline } = req.body;
 
   if (!title) throw new ApiError(401, "title field is requied");
-  const existedTodo = await Todo.findOne({ title });
+  const existedTodo = await Todo.findOne({
+    $and: [{ title }, { owner: req.user._id }],
+  });
 
   if (existedTodo) {
     throw new ApiError(409, `Todo with title '${title}' already exists`);
