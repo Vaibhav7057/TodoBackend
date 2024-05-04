@@ -60,8 +60,8 @@ const findtodo = asyncHandler(async (req, res) => {
   const alltodos = await Todo.find({ owner: userid }).skip(skip).limit(limit);
   const numberOfTodos = await Todo.find({ owner: userid }).countDocuments();
 
-  if (!alltodos) {
-    throw new ApiError(404, "you are not a valid user");
+  if (!alltodos.length) {
+    throw new ApiError(404, "no todos yet create one");
   }
   const newResponse = new ApiResponse(
     200,
